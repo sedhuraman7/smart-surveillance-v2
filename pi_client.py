@@ -5,7 +5,8 @@ import numpy as np
 import threading
 
 # Configuration
-SERVER_URL = "http://172.30.24.148:5000/upload_frame"
+# Using the link that OPENED the dashboard successfully:
+SERVER_URL = "https://5000.smart-surveillance-v2.selfmade.fun/upload_frame"
 # Example: http://surveillance.labs.selfmade.ninja/upload_frame
 
 CAMERA_INDEX = 0  # 0 for USB Cam, "libcamerasrc ..." for Pi Cam

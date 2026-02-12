@@ -120,6 +120,7 @@ def upload_frame():
         frame = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         
         if frame is not None:
+            print(f"[DEBUG] Frame Received: {frame.shape}") # Debugging
             # Process AI immediately (or just store it for a worker thread)
             # For simplicity, we process it here (might slow down FPS slightly but ensures sync)
             processed_frame = process_ai_logic(frame)
