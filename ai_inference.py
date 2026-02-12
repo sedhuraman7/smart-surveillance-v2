@@ -20,46 +20,70 @@ class AIModel:
     def run_inference(self, frame):
         """
         Runs logic on BOTH models and combines results.
+        OPTIMIZED: Only Cars + Violence. Resizes frame for speed.
         """
-        combined_detections = []
-        annotated_frame = frame.copy()
+        # OPTIMIZATION: Resize frame for faster AI processing
+        # 320x320 is good enough for large objects like Cars/Guns
+        input_frame = cv2.resize(frame, (320, 320)) 
         
-        # 1. Run General Model (Car, Dog, Person)
-        # Classes: 0=person, 2=car, 16=dog
-        results_gen = self.model_gen(frame, verbose=False, conf=config.CONF_GENERAL, classes=[0, 2, 16])
+        combined_detections = []
+        annotated_frame = frame.copy() # Draw on original resolution frame
+        
+        # Scaling factor to map 320x boxes back to ORIGINAL frame size
+        scale_x = frame.shape[1] / 320
+        scale_y = frame.shape[0] / 320
+        
+        # 1. Run General Model (Car Only) 🚗
+        # Classes: 2=car (Removed 0=person, 16=dog)
+        results_gen = self.model_gen(input_frame, verbose=False, conf=config.CONF_GENERAL, classes=[2])
         for r in results_gen:
-            annotated_frame = r.plot() # Draw basic boxes
+            # We must map boxes back to original size manually since we resized input
             for box in r.boxes:
+                # Get coordinates
+                x1, y1, x2, y2 = box.xyxy[0].tolist()
+                
+                # Scale back
+                x1, x2 = x1 * scale_x, x2 * scale_x
+                y1, y2 = y1 * scale_y, y2 * scale_y
+                
+                # Draw Box (Green for General)
+                cv2.rectangle(annotated_frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+                
                 cls_id = int(box.cls[0])
                 label = self.model_gen.names[cls_id]
+                cv2.putText(annotated_frame, label, (int(x1), int(y1)-10), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+                
                 combined_detections.append({
                     "type": "general",
                     "label": label,
-                    "box": box.xyxy[0].tolist(),
+                    "box": [x1, y1, x2, y2],
                     "conf": float(box.conf[0])
                 })
 
-        # 2. Run Violence Model (If available)
+        # 2. Run Violence Model (Critical Priority) 👊🔪
         if self.has_violence_model:
-            results_vio = self.model_vio(frame, verbose=False, conf=config.CONF_VIOLENCE)
+            results_vio = self.model_vio(input_frame, verbose=False, conf=config.CONF_VIOLENCE)
             for r in results_vio:
-                # We expect classes like: 'Violent', 'Gun', 'Knife', 'Normal'
-                # Note: We Ignore 'Normal' class if present to save space
                 for box in r.boxes:
                     cls_id = int(box.cls[0])
                     label = self.model_vio.names[cls_id]
                     
                     if label.lower() != "normal":
+                        # Scale back
+                        x1, y1, x2, y2 = box.xyxy[0].tolist()
+                        x1, x2 = x1 * scale_x, x2 * scale_x
+                        y1, y2 = y1 * scale_y, y2 * scale_y
+                        
                         # Draw RED box for Danger
-                        x1, y1, x2, y2 = map(int, box.xyxy[0])
-                        cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
-                        cv2.putText(annotated_frame, f"DANGER: {label}", (x1, y1-10), 
+                        cv2.rectangle(annotated_frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 3)
+                        cv2.putText(annotated_frame, f"DANGER: {label}", (int(x1), int(y1)-10), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,255), 2)
                         
                         combined_detections.append({
                             "type": "danger",
-                            "label": label, # 'Violent', 'Gun'
-                            "box": box.xyxy[0].tolist(),
+                            "label": label, 
+                            "box": [x1, y1, x2, y2],
                             "conf": float(box.conf[0])
                         })
         
