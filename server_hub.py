@@ -7,7 +7,10 @@ from ai_inference import AIModel
 import utils
 import alert_svc
 import threading
+import alert_svc
+import threading
 import config
+from database_svc import db
 
 app = Flask(__name__)
 
@@ -66,7 +69,11 @@ def process_ai_logic(frame):
         
         # Send Alert (Simulated)
         # In real Pi, we might send GPS too. Here we assume static/server location for now.
+        location = "13.0827, 80.2707"
         alert_svc.send_alert(incident_type, 13.0827, 80.2707, img_path, vid_path)
+        
+        # Log to Database
+        db.log_incident(incident_type, img_path, vid_path, location)
         
         last_alert_time = current_time
         
