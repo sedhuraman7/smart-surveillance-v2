@@ -8,8 +8,10 @@ LOCATION_SAVE_DIR = "evidence"
 IS_SIMULATION = True 
 
 # Camera Settings
-CAMERA_INDEX = 0 
-FRAME_WIDTH = 1280 # HD Resolution (Perusa theriyum)
+# Camera Settings
+# For Selfmade Ninja Lab, upload a video file and use its path string e.g. "path/to/video.mp4"
+CAMERA_INDEX = 0  # 0 for Webcam, or string "video.mp4" for file simulation
+FRAME_WIDTH = 1280 
 FRAME_HEIGHT = 720
 FPS = 30
 
