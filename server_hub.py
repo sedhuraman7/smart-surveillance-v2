@@ -100,6 +100,12 @@ def gallery():
     
     return render_template('gallery.html', files=files)
 
+@app.route('/logs')
+def view_logs():
+    # Fetch recent logs from MongoDB
+    incidents = db.get_recent_incidents(limit=50)
+    return render_template('logs.html', incidents=incidents)
+
 @app.route('/upload_frame', methods=['POST'])
 def upload_frame():
     """

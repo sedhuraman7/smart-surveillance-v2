@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surveillance Logs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen p-6">
+    <div class="container mx-auto max-w-6xl">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-400">📜 Incident Database Logs</h1>
+            <div class="flex gap-4">
+                <a href="/gallery" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">View Evidence Gallery</a>
+                <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    &larr; Back to Live
+                </a>
+            </div>
+        </div>
+
+        <div class="glass rounded-xl overflow-hidden border border-gray-700 shadow-xl">
+            <table class="w-full text-left">
+                <thead class="bg-gray-800 text-gray-400 uppercase text-xs">
+                    <tr>
+                        <th class="px-6 py-4">Time</th>
+                        <th class="px-6 py-4">Severity</th>
+                        <th class="px-6 py-4">Incident Type</th>
+                        <th class="px-6 py-4">Location</th>
+                        <th class="px-6 py-4">Evidence</th>
+                        <th class="px-6 py-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    {% for log in incidents %}
+                    <tr class="hover:bg-gray-800/50 transition">
+                        <td class="px-6 py-4 text-sm text-gray-300">
+                            {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if 'CRITICAL' in log.type %}
+                            <span
+                                class="bg-red-900 text-red-200 text-xs px-2 py-1 rounded-full font-bold">CRITICAL</span>
+                            {% else %}
+                            <span class="bg-yellow-900 text-yellow-200 text-xs px-2 py-1 rounded-full">WARNING</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-white font-medium">
+                            {{ log.type }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-400 font-mono">
+                            {{ log.location }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if log.image %}
+                            <a href="{{ url_for('serve_evidence', filename=log.image.split('/')[-1]) }}" target="_blank"
+                                class="text-blue-400 hover:underline text-sm">View Image</a>
+                            {% else %}
+                            <span class="text-gray-600 text-xs">No Data</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs text-gray-500 border border-gray-700 px-2 py-1 rounded">{{ log.status
+                                }}</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            No incidents recorded in database yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+
+</html>
