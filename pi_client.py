@@ -5,13 +5,13 @@ import numpy as np
 import threading
 
 # Configuration
-SERVER_URL = "http://YOUR_LAB_URL_HERE:5000/upload_frame" 
+SERVER_URL = "http://172.30.24.148:5000/upload_frame"
 # Example: http://surveillance.labs.selfmade.ninja/upload_frame
 
 CAMERA_INDEX = 0  # 0 for USB Cam, "libcamerasrc ..." for Pi Cam
 FRAME_WIDTH = 640 # Keep low for faster upload
 FRAME_HEIGHT = 480
-FPS = 15          # Don't overload network
+FPS = 2          # Don't overload network
 
 def main():
     print("---------------------------------------------------")
@@ -45,11 +45,14 @@ def main():
         data = img_encoded.tobytes()
         
         try:
-            # Send to Server (HTTP POST)
+            # Send to Server (HTTP POST) with User-Agent to bypass Firewalls
             response = requests.post(
                 SERVER_URL, 
                 data=data, 
-                headers={'Content-Type': 'application/octet-stream'}
+                headers={
+                    'Content-Type': 'application/octet-stream',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
             )
             
             if response.status_code == 200:

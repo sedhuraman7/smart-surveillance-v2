@@ -6,12 +6,14 @@ from ai_inference import AIModel
 import utils
 import alert_svc
 import threading
+import config
 
 app = Flask(__name__)
 
 # Global storage for the latest frame from Pi
 latest_frame = None
 lock = threading.Lock()
+last_alert_time = 0
 
 # Initialize AI (Runs on Server)
 print("[SERVER] Loading AI Models...")
@@ -49,10 +51,23 @@ def process_ai_logic(frame):
 
     # 3. Alert Trigger (Simplified for Server)
     # We rely on the AI Class's internal drawings for now.
-    # If incident, we can print/log.
-    if incident_type:
+    current_time = time.time()
+    global last_alert_time
+    
+    if incident_type and (current_time - last_alert_time > config.ALERT_COOLDOWN):
         print(f"!!! SERVER ALERT: {incident_type} !!!")
-        # Here you would trigger SMS/Email/Evidence Save
+        
+        # Save Evidence (Image & Video)
+        # Note: 'frame_buffer' is tricky here as we only get 1 frame at a time.
+        # For now, we save JUST the image. Video loop buffer needs more logic.
+        print("Saving Evidence...")
+        img_path, vid_path = utils.save_evidence([frame], annotated_frame, incident_type)
+        
+        # Send Alert (Simulated)
+        # In real Pi, we might send GPS too. Here we assume static/server location for now.
+        alert_svc.send_alert(incident_type, 13.0827, 80.2707, img_path, vid_path)
+        
+        last_alert_time = current_time
         
     return annotated_frame
 
