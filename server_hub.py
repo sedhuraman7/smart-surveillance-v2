@@ -1,7 +1,8 @@
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, send_from_directory
 import cv2
 import numpy as np
 import time
+import os
 from ai_inference import AIModel
 import utils
 import alert_svc
@@ -74,6 +75,23 @@ def process_ai_logic(frame):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/evidence/<path:filename>')
+def serve_evidence(filename):
+    return send_from_directory('evidence', filename)
+
+@app.route('/gallery')
+def gallery():
+    evidence_dir = 'evidence'
+    if not os.path.exists(evidence_dir):
+        os.makedirs(evidence_dir)
+        
+    files = os.listdir(evidence_dir)
+    # Filter for .jpg and .mp4
+    files = [f for f in files if f.endswith(('.jpg', '.mp4'))]
+    files.sort(reverse=True) # Newest first
+    
+    return render_template('gallery.html', files=files)
 
 @app.route('/upload_frame', methods=['POST'])
 def upload_frame():

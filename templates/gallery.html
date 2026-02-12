@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen p-6">
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-red-500">🚨 Incident Evidence Gallery</h1>
+            <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
+                &larr; Back to Live Data
+            </a>
+        </div>
+
+        {% if files %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for file in files %}
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-lg hover:border-red-500 transition">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs text-gray-400 truncate">{{ file }}</span>
+                    <span class="bg-red-900 text-red-200 text-xs px-2 py-1 rounded">CRITICAL</span>
+                </div>
+
+                {% if file.endswith('.jpg') %}
+                <img src="{{ url_for('serve_evidence', filename=file) }}"
+                    class="w-full h-48 object-cover rounded border border-gray-600" alt="Evidence">
+                {% elif file.endswith('.mp4') %}
+                <video controls class="w-full h-48 object-cover rounded border border-gray-600">
+                    <source src="{{ url_for('serve_evidence', filename=file) }}" type="video/mp4">
+                    Your browser does not support video.
+                </video>
+                {% endif %}
+
+                <div class="mt-3 flex justify-between">
+                    <a href="{{ url_for('serve_evidence', filename=file) }}" target="_blank"
+                        class="text-blue-400 text-sm hover:underline">View Full</a>
+                    <a href="{{ url_for('serve_evidence', filename=file) }}" download
+                        class="text-green-500 text-sm hover:underline">Download</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-20 text-gray-500">
+            <h2 class="text-xl">No Evidence Found Yet</h2>
+            <p>System is monitoring...</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
