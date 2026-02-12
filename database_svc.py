@@ -17,7 +17,7 @@ import os
 # Hardcoded for now based on typical Lab setup (You might need to update credentials)
 # Password '@' is encoded as '%40'
 MONGO_URI = "mongodb://Sedhuraman:sedhuraman%407777@mongodb.selfmade.ninja:27017/?authSource=Sedhuraman"
-DB_NAME = "Sedhuraman"
+DB_NAME = "Sedhuraman_SurveillanceSystem"
 COLLECTION_NAME = "incidents"
 
 class DatabaseService:
