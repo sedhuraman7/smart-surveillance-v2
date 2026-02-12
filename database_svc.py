@@ -15,8 +15,9 @@ import os
 # MONGO_PASS = os.getenv('MONGO_PASS', 'ninja')
 
 # Hardcoded for now based on typical Lab setup (You might need to update credentials)
-MONGO_URI = "mongodb://ninja:ninja@mongodb.selfmade.ninja:27017/?authSource=surveillance_db"
-DB_NAME = "surveillance_db"
+# Password '@' is encoded as '%40'
+MONGO_URI = "mongodb://Sedhuraman:sedhuraman%407777@mongodb.selfmade.ninja:27017/?authSource=Sedhuraman"
+DB_NAME = "Sedhuraman"
 COLLECTION_NAME = "incidents"
 
 class DatabaseService:
